@@ -55,7 +55,7 @@ def create_artist(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-@role_required(['artist_manager'])
+@role_required(['super_admin','artist_manager'])
 def list_artist(request):
     query = """
         SELECT
@@ -177,7 +177,7 @@ def create_music(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-@role_required(['artist'])
+@role_required(['artist','artist_manager','super_admin'])
 def list_music(request):
     query = """
         SELECT
@@ -255,6 +255,10 @@ def delete_music(request, music_id):
     return Response({'message': 'Music deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
 # export artist in csv format
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+@role_required(['artist_manager'])
 def export_artists_csv(request):
     query = """
         SELECT
@@ -291,6 +295,9 @@ def export_artists_csv(request):
 # import artist
 @csrf_protect
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+@role_required(['artist_manager'])
 def import_artists_csv(request):
     csv_file = request.FILES.get('csv_file')
 
