@@ -224,11 +224,11 @@ def update_music(request, music_id):
     serializer = UpdateMusicSerializer(data=request.data)
     if serializer.is_valid():
         data = serializer.validated_data
-        print(data)
+        
 
         query = """
             UPDATE music
-            SET title = %s, album_name = %s, genre = %s, updated_at = %s, artist_id = %s
+            SET title = %s, album_name = %s, genre = %s, updated_at = %s, artist_id = %s, dob = %s,
             WHERE id = %s
         """
 
@@ -236,6 +236,7 @@ def update_music(request, music_id):
             data.get('title', music.title),
             data.get('album_name', music.album_name),
             data.get('genre', music.genre),
+            data.get('dob', music.dob),
             timezone.now(),
             data.get('artist_id', music.artist_id.id),  # Use artist_id from validated data
             music_id
