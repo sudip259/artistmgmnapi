@@ -35,6 +35,7 @@ class ListUserSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(max_length=255)
     last_name = serializers.CharField(max_length=255)
     role_type = serializers.CharField(max_length=14)
+    email = serializers.EmailField(max_length=255)
     phone = serializers.CharField(max_length=20)
     gender = serializers.CharField(max_length=1)
     address = serializers.CharField(max_length=255)
@@ -45,4 +46,4 @@ class ListUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'first_name', 'last_name', 'role_type', 'phone', 'gender', 'address', 'dob', 'created_at', 'updated_at', 'is_active']
+        fields = ['id', 'first_name','email', 'last_name', 'role_type', 'phone', 'gender', 'address', 'dob', 'created_at', 'updated_at', 'is_active']

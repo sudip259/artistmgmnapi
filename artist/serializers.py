@@ -61,6 +61,7 @@ class UpdateMusicSerializer(serializers.Serializer):
     title = serializers.CharField(required=False)
     album_name = serializers.CharField(required=False)
     genre = serializers.CharField(required=False)
+    artist_id = serializers.IntegerField()
 
 class ArtistImportSerializer(serializers.Serializer):
     UserID = serializers.IntegerField()

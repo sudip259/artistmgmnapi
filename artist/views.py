@@ -55,7 +55,7 @@ def create_artist(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-@role_required(['super_admin','artist_manager'])
+@role_required(['super_admin','artist_manager','artist'])
 def list_artist(request):
     query = """
         SELECT
@@ -104,16 +104,21 @@ def update_artist(request, artist_id):
         return Response({'message': 'Artist not found'}, status=status.HTTP_404_NOT_FOUND)
 
     data = request.data
+    user_id = data.get('user_id')
+
+    # Check if a user with the same user_id already exists
+    if Artist.objects.filter(user_id=user_id).exclude(id=artist_id).exists():
+        return Response({'message': 'User is already associated with this user id'}, status=status.HTTP_400_BAD_REQUEST)
 
     query = """
         UPDATE artist
-        SET name = %s, dob = %s, gender = %s, address = %s,
+        SET name = %s, dob = %s, gender = %s, address = %s, user_id = %s,
             first_release_year = %s, number_of_albums_released = %s, updated_at = %s
         WHERE id = %s
     """
 
     values = (
-        data.get('name'), data.get('dob'), data.get('gender'), data.get('address'),
+        data.get('name'), data.get('dob'), data.get('gender'), data.get('address'), user_id,
         data.get('first_release_year'), data.get('number_of_albums_released'),
         timezone.now(), artist_id
     )
@@ -219,10 +224,11 @@ def update_music(request, music_id):
     serializer = UpdateMusicSerializer(data=request.data)
     if serializer.is_valid():
         data = serializer.validated_data
+        print(data)
 
         query = """
             UPDATE music
-            SET title = %s, album_name = %s, genre = %s, updated_at = %s
+            SET title = %s, album_name = %s, genre = %s, updated_at = %s, artist_id = %s
             WHERE id = %s
         """
 
@@ -230,14 +236,16 @@ def update_music(request, music_id):
             data.get('title', music.title),
             data.get('album_name', music.album_name),
             data.get('genre', music.genre),
-            timezone.now(), music_id
+            timezone.now(),
+            data.get('artist_id', music.artist_id.id),  # Use artist_id from validated data
+            music_id
         )
 
         with connection.cursor() as cursor:
             cursor.execute(query, values)
 
         return Response({'message': 'Music updated successfully'})
-    
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])

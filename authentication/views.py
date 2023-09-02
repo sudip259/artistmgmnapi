@@ -98,7 +98,7 @@ def create_user(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-@role_required(['super_admin'])
+@role_required(['super_admin','artist_manager'])
 def list_users(request):
     if request.method == 'GET':
         with connection.cursor() as cursor:
@@ -109,7 +109,6 @@ def list_users(request):
         
 
         for row in data:
-            print("row[0]++++++++++",row[0])
             user_dict = {
                 'id': row[0],
                 'first_name': row[1],
