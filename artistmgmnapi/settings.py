@@ -144,35 +144,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-# import "./styles.css";
-# import axios from "axios";
-
-# export default function App() {
-#   const handleExportCSV = async () => {
-#     try {
-#       await axios
-#         .get("http://localhost:8000/api/artist/export-csv", {
-#           responseType: "blob" // Important: Specify the response type as blob
-#         })
-#         .then((res) => {
-#           console.log("res", res);
-#           const blob = new Blob([res.data], { type: "text/csv" });
-#           const url = URL.createObjectURL(blob);
-#           const link = document.createElement("a");
-#           link.href = url;
-#           link.download = "artists.csv";
-#           document.body.appendChild(link);
-#           link.click();
-#           document.body.removeChild(link);
-#           URL.revokeObjectURL(url);
-#         })
-#         .catch((err) => {
-#           console.log("err", err);
-#         });
-#     } catch (error) {
-#       console.error("Error exporting CSV:", error);
-#     }
-#   };
-
-#   return <button onClick={handleExportCSV}>Export CSV</button>;
-# }

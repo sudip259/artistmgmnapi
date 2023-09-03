@@ -309,6 +309,7 @@ def export_artists_csv(request):
 @role_required(['artist_manager'])
 def import_artists_csv(request):
     csv_file = request.FILES.get('csv_file')
+    print('csv',csv_file)
 
     if not csv_file:
         return JsonResponse({'error': 'No CSV file provided'}, status=400)
@@ -318,32 +319,35 @@ def import_artists_csv(request):
         csv_reader = csv.DictReader(decoded_file.splitlines())
 
         existing_user_ids = set(CustomUser.objects.values_list('id', flat=True))
-        imported_user_ids = set(Artist.objects.values_list('user_id__id', flat=True))  
+        imported_user_ids = set(Artist.objects.values_list('user_id', flat=True))  
         errors = []
 
         with connection.cursor() as cursor:
             for row in csv_reader:
                 user_id = row.get('UserID')
                 if not user_id.isdigit() or int(user_id) not in existing_user_ids:
-                    errors.append({'UserID': 'Invalid or non-existent UserID'})
+                    errors.append({'error': 'Invalid or non-existent UserID'})
                     continue
 
                 if int(user_id) in imported_user_ids:
-                    print('duplicate user')
-                    errors.append({'UserID': 'Duplicate UserID '+str(user_id)})
+                    errors.append({'error': 'Duplicate UserID'})
                     continue
 
                 imported_user_ids.add(user_id)
 
                 try:
                     dob = row.get('DOB')
-                    print(dob)
                 except ValueError:
-                    errors.append({'DOB': 'Invalid date format'})
+                    errors.append({'error': 'Invalid date format'})
 
                 gender = row.get('Gender')
+                if gender in ('Male', 'Female', 'Other'):
+                    gender = 'm' if gender == 'Male' else ('f' if gender == 'Female' else 'o')
+                else:
+                    errors.append({'error': 'Invalid gender value'})
+
                 if gender not in dict(Artist.GENDERS).keys():
-                    errors.append({'Gender': 'Invalid gender value'})
+                    errors.append({'error': 'Invalid gender value'})
 
                 try:
                     first_release_year = int(row.get('FirstReleaseYear'))
